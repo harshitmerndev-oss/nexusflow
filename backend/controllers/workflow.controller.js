@@ -1,16 +1,11 @@
 import Workflow from "../models/workflow.model.js";
-import { compileWorkflow } from "../services/workflowCompiler.js";
+import { compileWorkflow as compileWorkflowService } from "../services/workflowCompiler.js";
+import { validateWorkflow } from "../utils/workflowValidator.js";
 
+// Create Workflow
 export const createWorkflow = async (req, res) => {
   try {
     const { name, nodes, edges } = req.body;
-
-    if (!name || !nodes || !edges) {
-      return res.status(400).json({
-        success: false,
-        message: "name, nodes and edges are required",
-      });
-    }
 
     const workflow = await Workflow.create({
       name,
@@ -32,9 +27,12 @@ export const createWorkflow = async (req, res) => {
   }
 };
 
+// Get All Workflows
 export const getWorkflows = async (req, res) => {
   try {
-    const workflows = await Workflow.find().sort({ createdAt: -1 });
+    const workflows = await Workflow.find().sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
       success: true,
@@ -48,6 +46,8 @@ export const getWorkflows = async (req, res) => {
     });
   }
 };
+
+// Compile Workflow
 export const compileWorkflowById = async (req, res) => {
   try {
     const workflow = await Workflow.findById(req.params.id);
@@ -59,7 +59,17 @@ export const compileWorkflowById = async (req, res) => {
       });
     }
 
-    const compiledData = compileWorkflow(workflow);
+    const validation = validateWorkflow(workflow);
+
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: validation.message,
+      });
+    }
+
+    const compiledData =
+      compileWorkflowService(workflow);
 
     return res.status(200).json({
       success: true,
