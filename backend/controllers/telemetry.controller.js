@@ -1,4 +1,5 @@
 import Telemetry from "../models/telemetry.model.js";
+import { executeRules } from "../services/ruleExecution.js";
 
 export const createTelemetry = async (req, res) => {
   try {
@@ -16,12 +17,14 @@ export const createTelemetry = async (req, res) => {
       timestamp,
       metrics,
     });
+    const ruleResults = await executeRules(metrics);
 
-    return res.status(201).json({
-      success: true,
-      message: "Telemetry data created successfully",
-      data: telemetry,
-    });
+  return res.status(201).json({
+  success: true,
+  message: "Telemetry data created successfully",
+  data: telemetry,
+  ruleResults,
+});
   } catch (error) {
     return res.status(500).json({
       success: false,
