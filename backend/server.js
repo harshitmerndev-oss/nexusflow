@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import telemetryRoutes from "./routes/telemetry.route.js";
 import workflowRoutes from "./routes/workflow.routes.js";
 import ruleRoutes from "./routes/rule.routes.js";
+import "./services/telemetryProcessor.js";
 
 dotenv.config();
 connectDB();

@@ -11,6 +11,7 @@ export const compileWorkflow = (workflow) => {
     compiledSteps.push({
       id: currentNode.id,
       type: currentNode.type,
+      data: currentNode.data || {},
     });
 
     const nextEdge = edges.find(
