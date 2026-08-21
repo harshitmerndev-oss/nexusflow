@@ -2,13 +2,47 @@ export const evaluateRule = (rule, telemetryData) => {
   try {
     const { condition } = rule;
 
-    const { temperature } = telemetryData;
+    const match = condition.match(
+      /^(\w+)\s*(>=|<=|>|<|===|==|!==|!=)\s*(\d+(?:\.\d+)?)$/
+    );
 
-    if (condition === "temperature > 80") {
-      return temperature > 80;
+    if (!match) {
+      throw new Error("Invalid rule condition");
     }
 
-    return false;
+    const [, field, operator, value] = match;
+
+    const telemetryValue = telemetryData[field];
+    const ruleValue = Number(value);
+
+    if (telemetryValue === undefined) {
+      return false;
+    }
+
+    switch (operator) {
+      case ">":
+        return telemetryValue > ruleValue;
+
+      case "<":
+        return telemetryValue < ruleValue;
+
+      case ">=":
+        return telemetryValue >= ruleValue;
+
+      case "<=":
+        return telemetryValue <= ruleValue;
+
+      case "==":
+      case "===":
+        return telemetryValue == ruleValue;
+
+      case "!=":
+      case "!==":
+        return telemetryValue != ruleValue;
+
+      default:
+        return false;
+    }
   } catch (error) {
     throw new Error("Failed to evaluate rule");
   }
